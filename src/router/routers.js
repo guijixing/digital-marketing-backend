@@ -68,8 +68,17 @@ export default [
 					icon: 'md-bookmark',
 					title: '基础标签管理',
 				},
-				component: () => import('@/view/tag/basic.vue')
-			},
+        component: () => import('@/view/tag/basic.vue'),
+      },
+      {
+        path: 'basic-detail',
+        name: 'basic-detail',
+        meta: {
+          icon: 'md-bookmark',
+          title: '基础标签详情',
+        },
+        component: () => import('@/view/tag/basicDetail.vue')
+      },
 			{
 				path: 'industry',
 				name: 'industry',
