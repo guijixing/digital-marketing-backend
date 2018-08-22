@@ -10,6 +10,6 @@ Mock.mock(/\/logout/, logout)
 Mock.mock(/\/get_table_data/, getTableData)
 
 //菜单数据
-Mock.mock(/\/get_menutree_data/, getMenuTreeData)
+// Mock.mock(/\/get_menutree_data/, getMenuTreeData)
 
 export default Mock
