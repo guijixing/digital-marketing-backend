@@ -1,7 +1,4 @@
-// import { getParams } from '@/libs/util'
-
 export const getDisturbedList = req => {
-  console.log(req.body)
   return {
     'data': {
       'total': '101',
