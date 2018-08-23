@@ -19,7 +19,7 @@
                 <Table :loading="loading" stripe border :columns="tableColumns" :data="resultValue"></Table>
 				<div style="margin: 10px;overflow: hidden">
 					<div style="float: right;">
-						<Page show-elevator show-sizer @on-page-size-change="changePage" :total="pages" :current="page.current" @on-change="changePage"></Page>
+            <Page show-total :total="total" :current="page.current" @on-change="changePage"></Page>
 					</div>
 				</div>
             </Card>
@@ -64,7 +64,7 @@ export default {
       labelFlag: false, // 是否显示标签编辑
       labelLoading: false, // 标签编辑附加条件列表
       hoverShow: true,
-      pages: null, // 总页数
+      total: null, // 总页数
       page: {
         current: 1, // 当前页数
         size: 10, // 每页显示条数
@@ -292,7 +292,7 @@ export default {
       this.getInformationList(this.page).then(res => {
         this.loading = false
         this.resultValue = res.records
-        this.pages = new Number(res.pages)
+        this.total = new Number(res.total)
       })
     },
     // 分页

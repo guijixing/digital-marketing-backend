@@ -6,6 +6,7 @@ import router from './router'
 import store from './store'
 import iView from 'iview'
 import i18n from '@/locale'
+import vueMonent from 'vue-moment'
 import config from '@/config'
 import importDirective from '@/directive'
 import 'iview/dist/styles/iview.css'
@@ -20,6 +21,7 @@ env === 'development' ? require('@/mock') : ''
 Vue.use(iView, {
   i18n: (key, value) => i18n.t(key, value)
 })
+Vue.use(vueMonent)
 Vue.config.productionTip = false
 /**
  * @description 全局注册应用配置
