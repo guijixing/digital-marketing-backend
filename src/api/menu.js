@@ -1,6 +1,6 @@
 import axios from '@/libs/api.request'
 
-
+//菜单管理API
 class menuTreeApi {
 	getMenuTreeData() {
 		return axios.request({
