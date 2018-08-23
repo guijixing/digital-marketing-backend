@@ -245,7 +245,24 @@ export default {
                       vm.edittingStore[param.index][key] = event.target.value
                     }
                   }
-                })
+                },
+                [
+                  h('Option',{
+                      props: {
+                          value: '1'
+                      }
+                  },'大于'),
+                  h('Option',{
+                      props: {
+                          value: '2'
+                      }
+                  },'等于'),
+                  h('Option',{
+                      props: {
+                          value: '3'
+                      }
+                  },'小于')
+                ])
               } else {
                 return h('Input', {
                   props: {
