@@ -54,6 +54,7 @@ class httpRequest {
 					if (data.msg) Message.error(data.msg)
 				}
 				return false
+				// return data
 			}
 			return data
 		}, (error) => {

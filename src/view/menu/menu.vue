@@ -1,8 +1,8 @@
 /*
  * @Author: tarn.tianrun 
- * @Date: 2018-08-22 18:13:54 
+ * @Date: 2018-08-24 16:19:11 
  * @Last Modified by:   tarn.tianrun 
- * @Last Modified time: 2018-08-22 18:13:54 
+ * @Last Modified time: 2018-08-24 16:19:11 
  */
 <template>
 	<div>
@@ -147,12 +147,12 @@
 				});
 			},
 			//更新菜单树
-			updateTreeNode(){
+			updateTreeNode() {
 				this.isNew = false
 				this.disabledItem = false
 			},
 			//更新菜单树
-			handleUpdateTreeMenuNode(){
+			handleUpdateTreeMenuNode() {
 				var params = {
 					menuId: this.formValidate.id,
 					name: this.formValidate.title,
