@@ -8,6 +8,14 @@ class usersApi {
 			method: 'POST',
 			data: params
 		})
+  }
+
+  saveUser(params) {
+		return axios.request({
+			url: 'custom/saveUser',
+			method: 'POST',
+			data: params
+		})
 	}
 }
-export default usersApi 
+export default usersApi

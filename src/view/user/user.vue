@@ -20,14 +20,40 @@
 		</Row>
 		<Row>
 			<Card>
-				<Table stripe border :columns="tableColumns" :data="resultValue"></Table>
-				<!-- <div style="margin: 10px;overflow: hidden">
+				<Table stripe border :loading="loading" :columns="tableColumns" :data="resultValue"></Table>
+				<div style="margin: 10px;overflow: hidden">
 					<div style="float: right;">
-						<Page show-elevator show-sizer @on-page-size-change="changePage" :total="pageTotal" :current="page.page" @on-change="changePage"></Page>
+						<Page show-total :total="total" :current="params.page" @on-change="changePage"></Page>
 					</div>
-				</div> -->
+				</div>
 			</Card>
 		</Row>
+    <Modal
+      title="编辑标签值"
+      v-model='modalFlag'
+      :closable="false"
+      :mask-closable="false"
+      footer-hide>
+      <Form :model="model" :label-width="120">
+          <FormItem label="所属行业（多选）">
+              <Select v-model="model.tradList" multiple style="width: 350px" clearable>
+                <Option v-for="(option, index) in status" :value="option.value" :key="index">{{option.label}}</Option>
+              </Select>
+          </FormItem>
+          <FormItem label="个性化折扣">
+              <Input v-model="model.sale" style="width: 350px" placeholder="请输入（0.01-1）"></Input>
+          </FormItem>
+          <FormItem ng-if="model.type==='1'" label="用户角色">
+              <Select v-model="model.role" style="width: 350px" clearable>
+                <Option v-for="(option, index) in roles" :value="option.value" :key="index">{{option.label}}</Option>
+              </Select>
+          </FormItem>
+          <div class="center width-100">
+              <Button @click="cancelModal" type="default">取消</Button>
+              <Button @click="saveModal" type="primary">保存</Button>
+          </div>
+      </Form>
+  </Modal>
 	</div>
 </template>
 <script>
@@ -36,13 +62,26 @@
 	export default {
 		data() {
 			return {
+        total:null,
+        loading:true,
+        modalFlag:false,
 				params : {
 					page:1,
 					limit:10,
 					username:'',
 					name:'',
 					type:'',
-				},
+        },
+        model:{
+          tradList:[],
+          sale:null,
+          role:null
+        },
+        modelTemp:{
+          tradList:[],
+          sale:null,
+          role:null
+        },
 				status: [
 					{
 						value: '1',
@@ -55,6 +94,20 @@
 					{
 						value: '3',
 						label: '已完成'
+					},
+        ],
+        roles: [
+					{
+						value: '1',
+						label: '超级管理员'
+					},
+					{
+						value: '2',
+						label: '数据管理员'
+					},
+					{
+						value: '3',
+						label: '管理员'
 					},
 				],
 				resultValue:[],
@@ -123,24 +176,10 @@
 									},
 									on: {
 										click: () => {
-											
+                      this.editUser(params.row);
 										}
 									}
-								}, '编辑'),
-								// h('Button', {
-								// 	props: {
-								// 		type: 'error',
-								// 		size: 'small'
-								// 	},
-								// 	style: {
-								// 		marginRight: '5px'
-								// 	},
-								// 	on: {
-								// 		click: () => {
-											
-								// 		}
-								// 	}
-								// }, '删除')
+								}, '编辑')
 							]);
 						}
 					}
@@ -152,11 +191,36 @@
 		},
 		methods:{
 			fetchList(){
+        this.loading=true;
 				api.handleUsersList(this.params).then(res => {
-					console.log(res.data,'res')
+          this.loading = false;
+					this.total = res.data.total;
 					this.resultValue = res.data.records
-				})
-			}
+				});
+      },
+      changePage(pageNum){
+        this.params.page  = pageNum;
+        this.fetchList();
+      },
+      editUser(row){
+        this.model = Object.assign(row);
+        this.modalFlag = true;
+      },
+      saveModal(){
+          api.saveUser(this.model).then(res=>{
+              if(!res.data.success){
+                this.Message.error('编辑失败，请重试');
+                return;
+              }
+              this.model = Object.assign(this.modelTemp);
+              this.modalFlag = false;
+              this.fetchList();
+          })
+      },
+      cancelModal(){
+        this.model = Object.assign(this.modelTemp);
+        this.modalFlag = false;
+      }
 		}
 	}
 </script>
