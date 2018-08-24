@@ -13,7 +13,7 @@
                 </Select>
                 <span>所属行业：</span>
                 <Input v-model="page.industry" placeholder="请输入所属行业" clearable style="width: 150px"></Input>
-                <Button @click="fetchList" class="margin-left-10" type="primary" icon="search">筛选</Button>
+                <Button @click="fetchList" class="margin-left-10" type="primary" icon="ios-search">筛选</Button>
             </Card>
             <Card>
                 <Table :loading="loading" stripe border :columns="tableColumns" :data="resultValue"></Table>

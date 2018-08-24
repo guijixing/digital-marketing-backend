@@ -15,7 +15,7 @@
 				<Select v-model="page.state" clearable style="width:150px">
 						<Option v-for="item in fState" :value="item.value" :key="item.value">{{ item.label }}</Option>
 				</Select>
-				<Button @click="fetchList" class="margin-left-10" type="primary" icon="search">筛选</Button>
+				<Button @click="fetchList" class="margin-left-10" type="primary" icon="ios-search">筛选</Button>
 			</Card>
 		</Row>
 		<Row>
