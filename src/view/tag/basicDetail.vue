@@ -5,34 +5,34 @@
 	<div>
 		<Row>
 			<Card >
-                <Form :model="model" :label-width="80">
-                    <FormItem label="标题名称">
-                        <Input v-model="obj.infoTitle" style="width:150px" placeholder="请输入标题名称"></Input>
-                    </FormItem>
-                    <FormItem label="标签类型">
-                        <Select v-model="obj.type" clearable style="width:150px">
-                            <Option v-for="item in fType" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                        </Select>
-                    </FormItem>
-                    <FormItem label="标签属性">
-                        <Select v-model="obj.attribute" clearable style="width:150px">
-                            <Option v-for="item in fAttribute" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                        </Select>
-                    </FormItem>
-                    <FormItem label="标签状态">
-                        <Input v-model="obj.state" style="width:150px" placeholder="请输入标签状态"></Input>
-                    </FormItem>
-                    <FormItem label="标题排序">
-                        <Input v-model="obj.sort" style="width:150px" placeholder="请输入标题排序"></Input>
-                    </FormItem>
-                    <FormItem label="ES列名">
-                        <Input v-model="obj.es" style="width:150px" placeholder="请输入ES列名"></Input>
-                    </FormItem>
-                    <FormItem>
-                        <Button v-if="labelShow"  @click="add" type="warning">添加标签值</Button>
-                        <Button @click="save" type="primary">保存</Button>
-                    </FormItem>
-                </Form>
+        <Form :model="model" :label-width="80">
+            <FormItem label="标题名称">
+                <Input v-model="obj.infoTitle" style="width:150px" placeholder="请输入标题名称"></Input>
+            </FormItem>
+            <FormItem label="标签类型">
+                <Select v-model="obj.type" clearable style="width:150px">
+                    <Option v-for="item in fType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
+            </FormItem>
+            <FormItem label="标签属性">
+                <Select v-model="obj.attribute" clearable style="width:150px">
+                    <Option v-for="item in fAttribute" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
+            </FormItem>
+            <FormItem label="标签状态">
+                <Input v-model="obj.state" style="width:150px" placeholder="请输入标签状态"></Input>
+            </FormItem>
+            <FormItem label="标题排序">
+                <Input v-model="obj.sort" style="width:150px" placeholder="请输入标题排序"></Input>
+            </FormItem>
+            <FormItem label="ES列名">
+                <Input v-model="obj.es" style="width:150px" placeholder="请输入ES列名"></Input>
+            </FormItem>
+            <FormItem>
+                <Button v-if="labelShow"  @click="add" type="warning">添加标签值</Button>
+                <Button @click="save" type="primary">保存</Button>
+            </FormItem>
+        </Form>
 				<!-- <span>标题名称：</span>
 				<Input v-model="obj.infoTitle" placeholder="请输入标题名称" clearable style="width: 150px"></Input>
 				<span>标签类型：</span>
