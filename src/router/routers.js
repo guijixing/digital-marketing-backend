@@ -152,6 +152,22 @@ export default [
 		]
 	},
 	{
+		path: '/role',
+		name: 'role',
+		component: Main,
+		children: [
+			{
+				path: 'role_index',
+				name: 'role_index',
+				meta: {
+					icon: 'ios-lock-outline',
+					title: '角色管理',
+				},
+				component: () => import('@/view/role/role.vue')
+			}
+		]
+	},
+	{
 		path: '/menu',
 		name: 'menu',
 		component: Main,
