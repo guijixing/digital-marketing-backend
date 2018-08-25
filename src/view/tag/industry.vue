@@ -4,37 +4,44 @@
 <template>
 	<div>
         <Tabs size="small" v-model="tab" @on-click="clickTab">
-                <TabPane name="app" label="APP标签">
-                    <tab-industry tab-name="app"></tab-industry>
-                </TabPane>
-                <TabPane name="www" label="网站标签">
-                    <tab-industry tab-name="www"></tab-industry>
-                </TabPane>
-                <TabPane name="call" label="通话标签">
-                    <tab-industry tab-name="call"></tab-industry>
-                </TabPane>
-            </Tabs>
+            <TabPane v-for="item in tabs" :name="item.id" :label="item.name">
+                <tab-industry :tab-name="item.id"></tab-industry>
+            </TabPane>
+        </Tabs>
     </div>
 </template>
 <script>
-import tabIndustry from './tab-industry'
+import tabIndustry from "./tab-industry";
+import tagsApi from "@/api/tags";
+const api = new tagsApi();
+
 export default {
-  data () {
+  data() {
     return {
-      tab: 'app'
-    }
+      tags:[],
+      tab: "",
+      loading: true
+    };
   },
   components: {
     tabIndustry
   },
-  beforeMount () {
-
+  beforeMount() {
+    api
+      .getOperationList()
+      .then(res => {
+        this.loading = false;
+        this.tags = res.data;
+        this.tab = res.data[0].id;
+      })
+      .catch(err => {
+        this.loading = false;
+      });
   },
   methods: {
-    clickTab () {
-      console.log(this.tab)
+    clickTab() {
+      console.log(this.tab);
     }
   }
-
-}
+};
 </script>

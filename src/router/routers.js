@@ -71,11 +71,11 @@ export default [
         component: () => import('@/view/tag/basic.vue'),
       },
       {
-        path: 'basic-detail',
+        path: 'basic-detail/:id?',
         name: 'basic-detail',
         meta: {
-          icon: 'md-bookmark',
-          title: '基础标签详情',
+          hideInMenu: true,
+          notCache: true,
         },
         component: () => import('@/view/tag/basicDetail.vue')
       },
