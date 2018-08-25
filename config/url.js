@@ -4,6 +4,6 @@ import env from './env'
 // const DEV_URL = 'http://192.168.10.141:4000/admin/'
 const DEV_URL = 'http://39.107.126.201:4000/'
 
-const PRO_URL = 'https://produce.com'
+const PRO_URL = 'http://39.107.126.201:4000/'
 
 export default env === 'development' ? DEV_URL : PRO_URL
