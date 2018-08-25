@@ -90,10 +90,11 @@ class tagsApi {
   }
 
   // 删除行业标签
-  delTradeTag(id) {
+  delTradeTag(params) {
     return axios.request({
-      url: `query/trade/tag/{id}`,
-      method: 'DELETE'
+      url: 'query/trade/tag',
+      method: 'DELETE',
+      data: params
     })
   }
   //#endregion

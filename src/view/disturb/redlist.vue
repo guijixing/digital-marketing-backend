@@ -19,7 +19,7 @@
 					<div style="float: right;">
 						<Page show-total :total="total" :current="page.current" @on-change="changePage"></Page>
 					</div>
-          <Button style="float: left;" @click="add" type="primary">添加记录</Button>
+          <Button style="float: left;" @click="add" type="warning">添加记录</Button>
 				</div>
 			</Card>
 		</Row>
@@ -29,19 +29,19 @@
       :closable="false"
       :mask-closable="false"
       footer-hide>
-      <Form :model="model" :label-width="80">
-          <FormItem label="用户编号">
-              <Input v-model="model.userNo" style="width: 90%;" placeholder="请输入(最多输入6个汉字/12个字符)"></Input>
+      <Form ref="model" :model="model" :rules="ruleInline" :label-width="80">
+          <FormItem prop="userNo" label="用户编号">
+              <Input v-model="model.userNo" style="width: 90%;" placeholder="请输入(最多6个汉字/12个字符)"></Input>
           </FormItem>
-          <FormItem label="手机号码">
-              <Input v-model="model.phoneNumber" style="width: 90%;" placeholder="请输入"></Input>
+          <FormItem prop="phoneNumber" label="手机号码">
+              <Input v-model="model.phoneNumber" style="width: 90%;" placeholder="请输入手机号码"></Input>
           </FormItem>
-          <FormItem  label="备注">
-             <Input v-model="model.remark" type="textarea" :rows="4" style="width: 90%;" placeholder="请输入"></Input>
+          <FormItem prop="remark" label="备注">
+             <Input v-model="model.remark" type="textarea" :rows="4" style="width: 90%;" placeholder="请输入备注"></Input>
           </FormItem>
           <div class="center width-100">
               <Button @click="cancelModal" type="default">取消</Button>
-              <Button @click="saveModal" type="primary">保存</Button>
+              <Button @click="saveModal('model')" type="primary">保存</Button>
           </div>
       </Form>
   </Modal>
@@ -78,6 +78,19 @@
           type:1,
           remark:null,
           manager:'1'
+        },
+        ruleInline: {
+            userNo: [
+                { required: true, message: '请输入用户编号', trigger: 'blur' },
+                { max:12, message: '请输入(最多6个汉字/12个字符)', trigger: 'blur' }
+            ],
+            phoneNumber: [
+                { required: true, message: '请输入手机号码', trigger: 'blur' },
+                { pattern: this.$constants.phoneReg,   message: '格式不正确', trigger: 'blur' }
+            ],
+            remark: [
+                { max:5000, message: '备注字数超过5000字', trigger: 'blur' }
+            ],
         },
 				tableColumns: [ // 表头
 					{
@@ -153,7 +166,9 @@
           this.loading = false
           this.resultValue = res.data.records
 			  	this.total = res.data.total
-				})
+				}).catch(err=>{
+          this.loading = false
+        })
 			},
 			// 分页
 			changePage(pageNum) {
@@ -168,11 +183,11 @@
 				}
 				api.delDisturbed(param).then((res) => {
           if(res.success){
-            this.Message.success('删除成功')
+            this.$Message.success('删除成功')
             this.fetchList()
             return;
           }
-					this.Message.error('删除失败，请重试')
+					this.$Message.error('删除失败，请重试')
 				})
       },
       add(){
@@ -182,15 +197,21 @@
         this.model = Object.assign(row);
         this.modalFlag = true;
       },
-      saveModal(){
-        api.saveUser(this.model).then(res=>{
-            if(!res.success){
-              this.Message.error('编辑失败，请重试');
-              return;
+      saveModal(name){
+        let _self = this;
+        _self.$refs[name].validate((valid) => {
+            if (valid) {
+              api.editDisturbed(_self.model).then(res=>{
+                  if(!res.success){
+                    _self.$Message.error('编辑失败，请重试');
+                    return;
+                  }
+                  _self.cancelModal();
+                  _self.fetchList();
+              })
             }
-            this.cancelModal();
-            this.fetchList();
         })
+
       },
       cancelModal(){
         this.modalFlag = false;

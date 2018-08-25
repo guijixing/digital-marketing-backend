@@ -9,7 +9,7 @@
                 <Input v-model="page.tagName" placeholder="请输入标题名称" clearable style="width: 150px"></Input>
                 <span>标签状态：</span>
                 <Select v-model="page.tagStatus" clearable style="width:150px">
-                    <Option v-for="item in fTagStatus" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                    <Option v-for="item in cStatus" :value="item.value" :key="item.value">{{ item.label }}</Option>
                 </Select>
                 <span>所属行业：</span>
                 <Input v-model="page.tagTrade" placeholder="请输入所属行业" clearable style="width: 150px"></Input>
@@ -63,6 +63,7 @@ export default {
   },
   data() {
     return {
+      cStatus:this.$constants.cStatus,
       resultValue: [],
       loading: true,
       modalFlag: false, // 是否显示标签编辑
@@ -98,17 +99,6 @@ export default {
         value: "",
         remark: ""
       },
-      fTagStatus: [
-        // 标签状态
-        {
-          value: "1",
-          label: "已上架"
-        },
-        {
-          value: "0",
-          label: "未上架"
-        }
-      ],
       tableColumns: [
         // 表头
         {
@@ -292,22 +282,25 @@ export default {
       }
       axios.then(res => {
         if (!res.success) {
-          this.Message.error("编辑失败，请重试");
+          this.$Message.error("编辑失败，请重试");
           return;
         }
-        this.Message.success("编辑成功");
+        this.$Message.success("编辑成功");
         this.cancelModal();
       });
     },
     // 删除标签
     handleRemove(id) {
-      api.delTradeTag(id).then(res => {
+      const params  = {
+        idList:[id]
+      };
+      api.delTradeTag(params).then(res => {
         if (res.success) {
-          this.Message.success("删除成功");
+          this.$Message.success("删除成功");
           this.fetchList();
           return;
         }
-        this.Message.error("删除失败，请重试");
+        this.$Message.error("删除失败，请重试");
       });
     },
     // 添加附件条件

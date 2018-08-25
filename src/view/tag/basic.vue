@@ -9,11 +9,11 @@
 				<Input v-model="page.name" placeholder="请输入标题名称" clearable style="width: 150px"></Input>
 				<span>标签类型：</span>
 				<Select v-model="page.kind" clearable style="width:150px">
-						<Option v-for="item in fKind" :value="item.value" :key="item.value">{{ item.label }}</Option>
+						<Option v-for="item in cKind" :value="item.value" :key="item.value">{{ item.label }}</Option>
 				</Select>
 				 <span>标签状态：</span>
 				<Select v-model="page.status" clearable style="width:150px">
-						<Option v-for="item in fState" :value="item.value" :key="item.value">{{ item.label }}</Option>
+						<Option v-for="item in cStatus" :value="item.value" :key="item.value">{{ item.label }}</Option>
 				</Select>
 				<Button @click="fetchList" class="margin-left-10" type="primary" icon="ios-search">筛选</Button>
 			</Card>
@@ -36,9 +36,10 @@
 import tagsApi from '@/api/tags'
 const api = new tagsApi
 export default {
-
   data () {
     return {
+      cKind:this.$constants.cKind,
+      cStatus:this.$constants.cStatus,
       resultValue: [], // 列表数据
       total: null, // 总页数
       page: {
@@ -49,26 +50,6 @@ export default {
         status: ''// 标签状态
       },
       loading: true, // 表格加载动画
-      fKind: [// 标签类型
-        {
-          value: '1',
-          label: '常用标签'
-        },
-        {
-          value: '0',
-          label: '非常用标签'
-        }
-      ],
-      fState: [// 标签状态
-        {
-          value: '1',
-          label: '已上架'
-        },
-        {
-          value: '0',
-          label: '未上架'
-        }
-      ],
       tableColumns: [ // 表头
         {
           title: '序号',
@@ -185,11 +166,11 @@ export default {
 				}
 				api.delBaseTag(param).then((res) => {
           if(res.success){
-            this.Message.success('删除成功')
+            this.$Message.success('删除成功')
             this.fetchList()
             return;
           }
-					this.Message.error('删除失败，请重试')
+					this.$Message.error('删除失败，请重试')
 				})
       },
 

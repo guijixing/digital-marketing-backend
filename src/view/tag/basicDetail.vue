@@ -5,32 +5,32 @@
 	<div>
 		<Row>
 			<Card >
-        <Form :model="model" :label-width="80">
-            <FormItem label="标题名称">
+        <Form ref="obj" :model="obj" :rules="rules" :label-width="80">
+            <FormItem prop="name" label="标题名称">
                 <Input v-model="obj.name" style="width:150px" placeholder="请输入标题名称"></Input>
             </FormItem>
-            <FormItem label="标签类型">
+            <FormItem prop="kind" label="标签类型">
                 <Select v-model="obj.kind" clearable style="width:150px">
-                    <Option v-for="item in fKind" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                    <Option v-for="item in cKind" :value="item.value" :key="item.value">{{ item.label }}</Option>
                 </Select>
             </FormItem>
-            <FormItem label="标签属性">
+            <FormItem prop="property" label="标签属性">
                 <Select v-model="obj.property" clearable style="width:150px">
-                    <Option v-for="item in fProperty" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                    <Option v-for="item in cProperty" :value="item.value" :key="item.value">{{ item.label }}</Option>
                 </Select>
             </FormItem>
-            <FormItem label="标签状态">
-                <Input v-model="obj.states" style="width:150px" placeholder="请输入标签状态"></Input>
+            <FormItem prop="status" label="标签状态">
+                <Input v-model="obj.status" style="width:150px" placeholder="请输入标签状态"></Input>
             </FormItem>
-            <FormItem label="标题排序">
-                <Input v-model="obj.sort" style="width:150px" placeholder="请输入标题排序"></Input>
+            <FormItem prop="sort" label="标题排序">
+                <Input  v-model="obj.sort" style="width:150px" placeholder="请输入标题排序"></Input>
             </FormItem>
-            <FormItem label="ES列名">
+            <FormItem prop="esField" label="ES列名">
                 <Input v-model="obj.esField" style="width:150px" placeholder="请输入ES列名"></Input>
             </FormItem>
             <FormItem>
                 <Button v-if="labelShow"  @click="openModel" type="warning">添加标签值</Button>
-                <Button @click="save" type="primary">保存</Button>
+                <Button @click="save('obj')" type="primary">保存</Button>
             </FormItem>
         </Form>
 			</Card>
@@ -46,27 +46,27 @@
             :closable="false"
             :mask-closable="false"
             footer-hide>
-            <Form :model="model" :label-width="100">
-                <FormItem label="标题名称">
+            <Form ref="model" :model="model"  :rules="rulesInlne" :label-width="100">
+                <FormItem prop="name" label="标题名称">
                     <Input v-model="model.name" style="width:300px" placeholder="请输入标题名称"></Input>
                 </FormItem>
-                <FormItem label="选项逻辑关系">
+                <FormItem prop="logic" label="选项逻辑关系">
                     <Select v-model="model.logic" clearable style="width:300px">
-                    <Option v-for="item in fLogic" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                    <Option v-for="item in cLogic" :value="item.value" :key="item.value">{{ item.label }}</Option>
                 </Select>
                 </FormItem>
-                <FormItem label="标签值">
+                <FormItem prop="esValue" label="标签值">
                     <Input v-model="model.esValue" style="width:300px" placeholder="请输入标签值"></Input>
                 </FormItem>
                 <FormItem v-if="model.logic==='1'" label="标签结束值">
                     <Input v-model="model.esEnd" style="width:300px" placeholder="请输入标签结束值"></Input>
                 </FormItem>
-                <FormItem label="标题排序">
+                <FormItem prop="sort" label="标题排序">
                     <Input v-model="model.sort" style="width:300px" placeholder="请输入标题排序"></Input>
                 </FormItem>
                 <div class="center width-100">
                     <Button @click="cancelModal" type="default">取消</Button>
-                    <Button @click="saveModal" type="primary">保存</Button>
+                    <Button @click="saveModal('model')" type="primary">保存</Button>
                 </div>
             </Form>
         </Modal>
@@ -80,12 +80,15 @@ export default {
   data() {
     return {
       // resultValue: [],//列表数据
+      cKind: this.$constants.cKind,
+      cProperty: this.$constants.cProperty,
+      cLogic: this.$constants.cLogic,
       obj: {
         id: this.$route.params.id,
         name: "", // 标题名称
         property: "", // 标签属性
         kind: "", // 标签类型
-        states: "", // 标签状态
+        status: "", // 标签状态
         sort: "", // 排序
         esField: "", // ES列名
         tagOptionList: [
@@ -99,6 +102,38 @@ export default {
             esEnd: "3"
           }
         ] //基础标签的选项信息
+      },
+      rules: {
+        name: [{ required: true, message: "请输入标题名称", trigger: "blur" }],
+        kind: [{ required: true, message: "请选择标签类型", trigger: "blur" }],
+        property: [
+          { required: true, message: "请选择标签属性", trigger: "blur" }
+        ],
+        status: [
+          { required: true, message: "请选择标签状态", trigger: "blur" }
+        ],
+        sort: [
+          { required: true, message: "请选择标题排序", trigger: "blur" },
+          {
+            pattern: this.$constants.sortReg,
+            message: "请输入数字",
+            trigger: "blur"
+          }
+        ],
+        esField: [{ required: true, message: "请输入ES列名", trigger: "blur" }]
+      },
+      rulesInline: {
+        name: [{ required: true, message: "请输入标题名称", trigger: "blur" }],
+        logic: [{ required: true, message: "请选择逻辑关系", trigger: "blur" }],
+        esValue: [{ required: true, message: "请输入标签值", trigger: "blur" }],
+        sort: [
+          { required: true, message: "请选择标题排序", trigger: "blur" },
+          {
+            pattern: this.$constants.sortReg,
+            message: "请输入数字",
+            trigger: "blur"
+          }
+        ]
       },
       loading: false, // 表格加载动画
       labelShow: false, // 是否显示标签值
@@ -119,54 +154,6 @@ export default {
         sort: "",
         esEnd: ""
       },
-      fKind: [
-        // 标签类型
-        {
-          value: "1",
-          label: "常用标签"
-        },
-        {
-          value: "0",
-          label: "非常用标签"
-        }
-      ],
-      fProperty: [
-        // 标签属性
-        {
-          value: "1",
-          label: "复选按钮"
-        },
-        {
-          value: "2",
-          label: "省市级联选择"
-        },
-        {
-          value: "3",
-          label: "市区级联选择"
-        }
-      ],
-      fState: [
-        // 标签状态
-        {
-          value: "1",
-          label: "已上架"
-        },
-        {
-          value: "0",
-          label: "未上架"
-        }
-      ],
-      fLogic: [
-        //逻辑关系
-        {
-          value: "0",
-          label: "值"
-        },
-        {
-          value: "1",
-          label: "区间"
-        }
-      ],
       tableColumns: [
         // 表头
         {
@@ -278,36 +265,45 @@ export default {
       this.obj.tagOptionList.splice(index, 1);
     },
     // 添加标签值 保存
-    saveModal() {
-      if (this.model.id != null) {
-        this.obj.tagOptionList.splice(
-          this.model.index,
-          1,
-          Object.assign(this.model)
-        );
-      } else {
-        this.obj.tagOptionList.push(Object.assign(this.model));
-      }
-      this.cancelModal();
+    saveModal(name) {
+      let _self = this;
+      _self.$refs[name].validate(valid => {
+        if (valid) {
+          if (_self.model.id != null) {
+            _self.obj.tagOptionList.splice(
+              _self.model.index,
+              1,
+              Object.assign(_self.model)
+            );
+          } else {
+            _self.obj.tagOptionList.push(Object.assign(_self.model));
+          }
+          _self.cancelModal();
+        }
+      });
     },
     //保存基础标签
-    save() {
+    save(name) {
       let _self = this;
-      let axios = Promise.reject();
-      if (_self.obj.id !== null) {
-        axios = api.editBaseTag(_self.obj);
-      } else {
-        axios = api.addBaseTag(_self.obj);
-      }
-      axios.then(res => {
-        if (!res.success) {
-          this.Message.error("编辑失败，请重试");
-          return;
+      _self.$refs[name].validate(valid => {
+        if (valid) {
+          let axios = null;
+          if (_self.obj.id !== null) {
+            axios = api.editBaseTag(_self.obj);
+          } else {
+            axios = api.addBaseTag(_self.obj);
+          }
+          axios.then(res => {
+            if (!res.success) {
+              _self.$Message.error("编辑失败，请重试");
+              return;
+            }
+            _self.$Message.success("编辑成功");
+            _self.$router.push({
+              name: "basic"
+            });
+          });
         }
-        this.Message.success("编辑成功");
-        this.$router.push({
-          name: "basic"
-        });
       });
     },
     // 关闭添加标签值

@@ -12,10 +12,18 @@ class usersApi {
 
   saveUser(params) {
 		return axios.request({
-			url: 'custom/saveUser',
-			method: 'POST',
+			url: 'admin/user',
+			method: 'PUT',
 			data: params
 		})
-	}
+  }
+
+  // 获取一级行业列表
+  getTradeList(){
+    return axios.request({
+			url: 'admin/trade/list',
+			method: 'GET'
+		})
+  }
 }
 export default usersApi

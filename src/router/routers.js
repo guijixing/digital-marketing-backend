@@ -76,6 +76,7 @@ export default [
         meta: {
           hideInMenu: true,
           notCache: true,
+          title: '基础标签详情',
         },
         component: () => import('@/view/tag/basicDetail.vue')
       },

@@ -12,6 +12,10 @@ import importDirective from '@/directive'
 import 'iview/dist/styles/iview.css'
 import './index.less'
 import '@/assets/icons/iconfont.css'
+import constants from '@/api/constants'
+
+
+
 // import '@/mock'
 // 实际打包时应该不引入mock
 import env from '../config/env'
@@ -27,6 +31,23 @@ Vue.config.productionTip = false
  * @description 全局注册应用配置
  */
 Vue.prototype.$config = config
+/**
+ * @description 常用字典项
+ */
+Vue.prototype.$constants = constants
+/**
+ * 字段过滤器
+ */
+Vue.filter('fDict', (value, arr) => {
+  if (value != null && value !== '') {
+    let rows = arr.filter(x => { return x.value == value });
+    if (rows.length > 0) {
+      return rows[0].label;
+    }
+  }
+  return value==null?'':value;
+})
+
 /**
  * 注册指令
  */
