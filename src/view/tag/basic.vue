@@ -6,13 +6,13 @@
 		<Row>
 			<Card class="seach-condition">
 				<span>标题名称：</span>
-				<Input v-model="page.infoTitle" placeholder="请输入标题名称" clearable style="width: 150px"></Input>
+				<Input v-model="page.name" placeholder="请输入标题名称" clearable style="width: 150px"></Input>
 				<span>标签类型：</span>
-				<Select v-model="page.type" clearable style="width:150px">
-						<Option v-for="item in fType" :value="item.value" :key="item.value">{{ item.label }}</Option>
+				<Select v-model="page.kind" clearable style="width:150px">
+						<Option v-for="item in fKind" :value="item.value" :key="item.value">{{ item.label }}</Option>
 				</Select>
 				 <span>标签状态：</span>
-				<Select v-model="page.state" clearable style="width:150px">
+				<Select v-model="page.status" clearable style="width:150px">
 						<Option v-for="item in fState" :value="item.value" :key="item.value">{{ item.label }}</Option>
 				</Select>
 				<Button @click="fetchList" class="margin-left-10" type="primary" icon="ios-search">筛选</Button>
@@ -25,6 +25,7 @@
 					<div style="float: right;">
 						<Page show-total :total="total" :current="page.current" @on-change="changePage"></Page>
 					</div>
+          <Button to="basic-detail" type="warning" >添加新标签</Button>
 				</div>
 			</Card>
 		</Row>
@@ -32,6 +33,8 @@
 </template>
 
 <script>
+import tagsApi from '@/api/tags'
+const api = new tagsApi
 export default {
 
   data () {
@@ -41,12 +44,12 @@ export default {
       page: {
         current: 1, // 当前页数
         size: 10, // 每页显示条数
-        infoTitle: '', // 标题名称
-        type: '', // 标签类型
-        state: ''// 标签状态
+        name: '', // 标题名称
+        kind: '', // 标签类型
+        status: ''// 标签状态
       },
       loading: true, // 表格加载动画
-      fType: [// 标签类型
+      fKind: [// 标签类型
         {
           value: '1',
           label: '常用标签'
@@ -69,33 +72,33 @@ export default {
       tableColumns: [ // 表头
         {
           title: '序号',
-          key: 'index',
+          type: 'index',
           width: 80,
           align: 'left'
         },
         {
           title: '标签名称',
-          key: 'infoTitle',
+          key: 'name',
           align: 'left'
         },
         {
           title: 'ES列名',
-          key: 'es',
+          key: 'esField',
           align: 'left'
         },
         {
           title: '类型',
-          key: 'type',
+          key: 'kind',
           align: 'left'
         },
         {
           title: '属性',
-          key: 'attribute',
+          key: 'property',
           align: 'left'
         },
           	{
           title: '状态',
-          key: 'state',
+          key: 'status',
           align: 'left'
         },
         {
@@ -129,7 +132,10 @@ export default {
                 },
                 on: {
                   click: () => {
-                    this.editState(params.row.id)
+                    this.$router.push({
+												name: 'basic-detail',
+												params: params.row.id
+											});
                   }
                 }
               }, '下架'),
@@ -159,18 +165,34 @@ export default {
   methods: {
     // 获取数据
     fetchList () {
-      this.getInformationList(this.page).then(res => {
+      this.loading = true
+      api.getBaseList(this.page).then(res => {
         this.loading = false
-        this.resultValue = res.records
-        this.total = new Number(res.total)
+        this.resultValue = res.data.records
+        this.total = res.data.total
+      }).catch(error=>{
+        this.loading = false
       })
     },
     // 分页
     changePage (pageNum) {
-      this.loading = true
       this.page.current = pageNum
       this.fetchList()
-    }
+    },
+    handleRemove(id) {
+				var param = {
+					idList: [id]
+				}
+				api.delBaseTag(param).then((res) => {
+          if(res.success){
+            this.Message.success('删除成功')
+            this.fetchList()
+            return;
+          }
+					this.Message.error('删除失败，请重试')
+				})
+      },
+
 
   }
 }

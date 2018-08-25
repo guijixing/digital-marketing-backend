@@ -6,13 +6,13 @@
         <Row>
             <Card class="seach-condition">
                 <span>标题名称：</span>
-                <Input v-model="page.infoTitle" placeholder="请输入标题名称" clearable style="width: 150px"></Input>
+                <Input v-model="page.tagName" placeholder="请输入标题名称" clearable style="width: 150px"></Input>
                 <span>标签状态：</span>
-                <Select v-model="page.state" clearable style="width:150px">
-                    <Option v-for="item in fState" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                <Select v-model="page.tagStatus" clearable style="width:150px">
+                    <Option v-for="item in fTagStatus" :value="item.value" :key="item.value">{{ item.label }}</Option>
                 </Select>
                 <span>所属行业：</span>
-                <Input v-model="page.industry" placeholder="请输入所属行业" clearable style="width: 150px"></Input>
+                <Input v-model="page.tagTrade" placeholder="请输入所属行业" clearable style="width: 150px"></Input>
                 <Button @click="fetchList" class="margin-left-10" type="primary" icon="ios-search">筛选</Button>
             </Card>
             <Card>
@@ -21,319 +21,307 @@
 					<div style="float: right;">
             <Page show-total :total="total" :current="page.current" @on-change="changePage"></Page>
 					</div>
+          <Button @click="addModal"   type="warning">添加新标签</Button>
 				</div>
             </Card>
         </Row>
         <Modal
             width="900"
             title="编辑标签"
-            v-model='labelFlag'
+            v-model='modalFlag'
             :closable="false"
             :mask-closable="false"
             footer-hide>
             <Form :model="model" :label-width="80">
                 <FormItem label="标题名称">
-                    <Input v-model="model.infoTitle" placeholder="请输入标题名称"></Input>
+                    <Input v-model="model.name" placeholder="请输入标题名称"></Input>
                 </FormItem>
                 <FormItem label="编码">
-                    <Input v-model="model.code" placeholder="请输入编码"></Input>
+                    <Input v-model="model.esCode" placeholder="请输入编码"></Input>
+                </FormItem>
+                <FormItem label="排序">
+                    <Input v-model="model.sort" placeholder="请输入排序"></Input>
                 </FormItem>
                 <FormItem label="附件条件">
-                    <can-edit-table :hover-show="hoverShow" :loading="labelLoading" @on-change="handleChangeLabel" @on-delete="handleLabelRemove" v-model="model.additional" :columns-list="labelTableColumns"></can-edit-table>
-                    <Button @click="addLabel" class="margin-top-10"  type="primary">添加记录</Button>
+                    <can-edit-table :hover-show="hoverShow" :loading="modalLoading" @on-change="handleChangeLabel" @on-delete="handleLabelRemove" v-model="model.condition" :columns-list="labelTableColumns"></can-edit-table>
+                    <Button @click="addCondition" class="margin-top-10"  type="primary">添加记录</Button>
                 </FormItem>
                 <div class="center width-100">
-                    <Button @click="cancel" type="default">取消</Button>
-                    <Button @click="saveLabel" type="primary">保存</Button>
+                    <Button @click="cancelModal" type="default">取消</Button>
+                    <Button @click="saveModal" type="primary">保存</Button>
                 </div>
             </Form>
         </Modal>
     </div>
 </template>
 <script>
-import canEditTable from './canEditTable'
+import canEditTable from "./canEditTable";
 export default {
-  props: ['tabName'],
+  props: ["tabName"],
   components: {
     canEditTable
   },
-  data () {
+  data() {
     return {
-      tab: 'app',
+      resultValue: [],
       loading: true,
-      labelFlag: false, // 是否显示标签编辑
-      labelLoading: false, // 标签编辑附加条件列表
+      modalFlag: false, // 是否显示标签编辑
+      modalLoading: false, // 标签编辑附加条件列表
       hoverShow: true,
       total: null, // 总页数
       page: {
         current: 1, // 当前页数
         size: 10, // 每页显示条数
-        infoTitle: '', // 标题名称
-        state: '', // 标签状态
-        industry: '', // 所属行业
-        type: this.tabName
+        tagName: "", // 标题名称
+        tagStatus: "", // 标签状态
+        tagTrade: "", // 所属行业
+        operationId: this.tabName
       },
       loading: true, // 表格加载动画
       model: {
-        infoTitle: '',
-        code: '',
-        additional: []
+        name: "",
+        esCode: "",
+        sort: "",
+        status: "",
+        condition: []
       },
       modelTemp: {
-        infoTitle: '',
-        code: '',
-        additional: []
+        name: "",
+        esCode: "",
+        sort: "",
+        status: "",
+        condition: []
       },
-      additionalObj: {
-        key: '',
-        condition: '',
-        value: '',
-        remark: ''
+      conditionObj: {
+        key: "",
+        condition: "",
+        value: "",
+        remark: ""
       },
-
-      fState: [// 标签状态
+      fTagStatus: [
+        // 标签状态
         {
-          value: '1',
-          label: '已上架'
+          value: "1",
+          label: "已上架"
         },
         {
-          value: '0',
-          label: '未上架'
+          value: "0",
+          label: "未上架"
         }
       ],
-      tableColumns: [ // 表头
+      tableColumns: [
+        // 表头
         {
-          title: '序号',
-          key: 'index',
+          title: "序号",
+          type: "index",
           width: 80,
-          align: 'left'
+          align: "left"
         },
         {
-          title: '标签名称',
-          key: 'infoTitle',
-          align: 'left'
+          title: "标签名称",
+          key: "name",
+          align: "left"
         },
         {
-          title: '编码',
-          key: 'code',
-          align: 'left'
+          title: "编码",
+          key: "esCode",
+          align: "left"
         },
         {
-          title: '附加条件',
-          key: 'remark',
-          align: 'left'
+          title: "附加条件",
+          key: "condition",
+          align: "left"
         },
         {
-          title: '状态',
-          key: 'type',
-          align: 'left'
+          title: "状态",
+          key: "status",
+          align: "left"
         },
         {
-          title: '操作',
-          key: 'action',
+          title: "操作",
+          key: "action",
           width: 200,
-          align: 'left',
+          align: "left",
           render: (h, params) => {
-            return h('div', [
-              h('Button', {
-                props: {
-                  type: 'primary',
-                  size: 'small'
-                },
-                style: {
-                  marginRight: '5px'
-                },
-                on: {
-                  click: () => {
-                    this.edit(params.row)
+            return h("div", [
+              h(
+                "Button",
+                {
+                  props: {
+                    type: "primary",
+                    size: "small"
+                  },
+                  style: {
+                    marginRight: "5px"
+                  },
+                  on: {
+                    click: () => {
+                      this.editModal(params.row);
+                    }
                   }
-                }
-              }, '编辑'),
-              h('Button', {
-                props: {
-                  type: 'primary',
-                  size: 'small'
                 },
-                style: {
-                  marginRight: '5px'
-                },
-                on: {
-                  click: () => {
-                    this.editState(params.row)
+                "编辑"
+              ),
+              h(
+                "Button",
+                {
+                  props: {
+                    type: "primary",
+                    size: "small"
+                  },
+                  style: {
+                    marginRight: "5px"
+                  },
+                  on: {
+                    click: () => {
+                      this.editTagStatus(params.row);
+                    }
                   }
-                }
-              }, '下架'),
-              h('Button', {
-                props: {
-                  type: 'error',
-                  size: 'small'
                 },
-                style: {
-                  marginRight: '5px'
-                },
-                on: {
-                  click: () => {
-                    this.handleRemove(params.row.id)
+                "下架"
+              ),
+              h(
+                "Button",
+                {
+                  props: {
+                    type: "error",
+                    size: "small"
+                  },
+                  style: {
+                    marginRight: "5px"
+                  },
+                  on: {
+                    click: () => {
+                      this.handleRemove(params.row.id);
+                    }
                   }
-                }
-              }, '删除')
-            ])
+                },
+                "删除"
+              )
+            ]);
           }
         }
       ],
-      resultValue: [
-        {
-          index: 1,
-          infoTitle: '汽车之家',
-          code: 'w1092291',
-          remark: '日访问大于30次，时长大于30分钟',
-          type: '已上架',
-          additional: [
-            {
-              key: '1111',
-              condition: '1',
-              value: '30',
-              remark: '日访问大于30次'
-            },
-            {
-              key: '2222',
-              condition: '2',
-              value: '30',
-              remark: '时长大于30分钟'
-            },
-            {
-              key: '1111',
-              condition: '1',
-              value: '30',
-              remark: '日访问大于30次'
-            },
-            {
-              key: '2222',
-              condition: '2',
-              value: '30',
-              remark: '日访问大于30次'
-            },
-            {
-              key: '1111',
-              condition: '1',
-              value: '30',
-              remark: '日访问大于30次'
-            },
-            {
-              key: '2222',
-              condition: '2',
-              value: '30',
-              remark: '日访问大于30次'
-            }
-          ]
-        },
-        {
-          index: 2,
-          infoTitle: '优信二手车',
-          code: 'w0291922',
-          remark: '无',
-          type: '已上架'
-        },
-        {
-          index: 3,
-          infoTitle: '弹个车',
-          code: 'w0291923',
-          remark: '无',
-          type: '已上架'
-        }
-      ],
+
       labelTableColumns: [
         {
-
-          title: 'KEY（必填）',
-          key: 'key',
+          title: "KEY（必填）",
+          key: "key",
           width: 150,
-          align: 'left',
+          align: "left",
           editable: true
         },
         {
-          title: '条件（必填）',
-          key: 'condition',
+          title: "条件（必填）",
+          key: "condition",
           width: 150,
-          align: 'left',
+          align: "left",
           editable: true
         },
         {
-          title: 'value（必填）',
-          key: 'value',
+          title: "value（必填）",
+          key: "value",
           width: 150,
-          align: 'left',
+          align: "left",
           editable: true
         },
         {
-          title: '备注（必填）',
-          key: 'remark',
-          align: 'left',
+          title: "备注（必填）",
+          key: "remark",
+          align: "left",
           editable: true
         },
         {
-          title: ' ',
-          key: 'action',
+          title: " ",
+          key: "action",
           width: 140,
-          handle: ['edit', 'delete']
+          handle: ["edit", "delete"]
         }
-
       ]
-
-    }
+    };
   },
-  beforeMount () {
-    this.loading = false
-    // this.fetchList();
+  beforeMount() {
+    // this.loading = false
+    this.fetchList();
   },
   methods: {
     // 获取数据
-    fetchList () {
-      this.getInformationList(this.page).then(res => {
-        this.loading = false
-        this.resultValue = res.records
-        this.total = new Number(res.total)
-      })
+    fetchList() {
+      this.loading = true;
+      this.getInformationList(this.page)
+        .then(res => {
+          this.loading = false;
+          this.resultValue = res.data.records;
+          this.total = res.data.total;
+        })
+        .catch(err => {
+          this.loading = false;
+        });
     },
     // 分页
-    changePage (pageNum) {
-      this.loading = true
-      this.page.current = pageNum
-      this.fetchList()
+    changePage(pageNum) {
+      this.page.current = pageNum;
+      this.fetchList();
     },
-    // 编辑标签
-    edit (obj) {
-      this.labelFlag = true
-      this.model = Object.assign(obj)
+    // 新增标签 弹框
+    addModal() {
+      this.modalFlag = true;
+
+    },
+    // 编辑标签 弹框
+    editModal(row) {
+      this.modalFlag = true;
+      this.model = Object.assign(row);
     },
     // 上架 下架
-    editState (obj) {
-      this.labelFlag = true
-      this.model = Object.assign(obj)
+    editTagStatus(row) {
+
     },
-    cancel () {
-      this.labelFlag = false
-      this.model = Object.assign(this.modelTemp)
+    cancelModal() {
+      this.modalFlag = false;
+      this.model = Object.assign(this.modelTemp);
     },
     // 保存标签
-    saveLabel () {},
+    saveModal() {
+      let _self = this;
+      let axios = Promise.reject();
+      if (_self.model.id !== null) {
+        axios = api.editTradeTag(_self.model);
+      } else {
+        axios = api.addTradeTag(_self.model);
+      }
+      axios.then(res => {
+        if (!res.success) {
+          this.Message.error("编辑失败，请重试");
+          return;
+        }
+        this.Message.success("编辑成功");
+        this.cancelModal();
+      });
+    },
     // 删除标签
-    handleRemove (id) {},
-    // 新增标签
-    add () {
-      this.labelFlag = true
+    handleRemove(id) {
+      api.delTradeTag(id).then(res => {
+        if (res.success) {
+          this.Message.success("删除成功");
+          this.fetchList();
+          return;
+        }
+        this.Message.error("删除失败，请重试");
+      });
     },
-    addLabel () {
-      this.model.additional.push(Object.assign(this.additionalObj))
+    // 添加附件条件
+    addCondition() {
+      this.model.condition.push(Object.assign(this.conditionObj));
     },
-    handleChangeLabel (obj) {
-
+    // 修改 附件条件
+    handleChangeLabel(row) {
+      // 无操作
     },
-    handleLabelRemove (id) {
-
+    // 删除 附件条件
+    handleLabelRemove(row) {
+      this.model.condition.splice(row.index,1);
     }
-
   }
-
-}
+};
 </script>

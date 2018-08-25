@@ -167,7 +167,7 @@
 					idList: [id]
 				}
 				api.delDisturbed(param).then((res) => {
-          if(res.data.success){
+          if(res.success){
             this.Message.success('删除成功')
             this.fetchList()
             return;
@@ -176,7 +176,6 @@
 				})
       },
       add(){
-        this.model = Object.assign(this.modelTemp);
         this.modalFlag = true;
       },
       edit(row){
@@ -185,17 +184,17 @@
       },
       saveModal(){
         api.saveUser(this.model).then(res=>{
-            if(!res.data.success){
+            if(!res.success){
               this.Message.error('编辑失败，请重试');
               return;
             }
-            this.model = Object.assign(this.modelTemp);
-            this.modalFlag = false;
+            this.cancelModal();
             this.fetchList();
         })
       },
       cancelModal(){
         this.modalFlag = false;
+        this.model = Object.assign(this.modelTemp);
       }
 		}
 	}

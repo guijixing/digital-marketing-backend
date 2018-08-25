@@ -13,7 +13,7 @@ class disturbsApi {
   delDisturbed(params) {
     return axios.request({
       url: 'admin/disturbed',
-      method: 'POST',
+      method: 'DELETE',
       data: params
     });
   }
