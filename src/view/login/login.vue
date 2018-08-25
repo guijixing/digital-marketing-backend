@@ -28,12 +28,12 @@ export default {
       'getUserInfo'
     ]),
     handleSubmit ({ userName, password }) {
-      this.handleLogin({ userName, password }).then(res => {
-        this.getUserInfo().then(res => {
+    //   this.handleLogin({ userName, password }).then(res => {
+        // this.getUserInfo().then(res => {
           this.$router.push({
             name: 'home'
-          })
-        })
+        //   })
+        // })
       })
     }
   }
