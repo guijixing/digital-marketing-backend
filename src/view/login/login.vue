@@ -25,23 +25,17 @@
 		methods: {
 			...mapActions([
 				'handleLogin',
-				'getUserInfo'
+				'getUserInfo',
+				'getUserInfos'
 			]),
 			handleSubmit({ userName, password }) {
-				// this.handleLogin({ userName, password }).then(res => {
-					this.getUserInfo().then(res => {
-						res = {
-							name: 'super_admin',
-							user_id: '1',
-							access: ['super_admin', 'admin'],
-							token: 'super_admin',
-							avator: 'https://file.iviewui.com/dist/a0e88e83800f138b94d2414621bd9704.png'
-						}
+				this.handleLogin({ userName, password }).then(res => {
+					this.getUserInfos().then(res => {
 						this.$router.push({
 							name: 'home'
 						})
 					})
-				// })
+				})
 			}
 		}
 	}
