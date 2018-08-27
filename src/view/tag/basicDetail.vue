@@ -6,32 +6,54 @@
 		<Row>
 			<Card >
         <Form ref="obj" :model="obj" :rules="rules" :label-width="80">
-            <FormItem prop="name" label="标题名称">
-                <Input v-model="obj.name" style="width:150px" placeholder="请输入标题名称"></Input>
-            </FormItem>
-            <FormItem prop="kind" label="标签类型">
-                <Select v-model="obj.kind" clearable style="width:150px">
-                    <Option v-for="item in cKind" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                </Select>
-            </FormItem>
-            <FormItem prop="property" label="标签属性">
-                <Select v-model="obj.property" clearable style="width:150px">
-                    <Option v-for="item in cProperty" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                </Select>
-            </FormItem>
-            <FormItem prop="status" label="标签状态">
+          <Row>
+              <Col span="6">
+                  <FormItem prop="name" label="标题名称">
+                    <Input v-model="obj.name" style="width:150px" placeholder="请输入标题名称"></Input>
+                  </FormItem>
+              </Col>
+              <Col span="6">
+                <FormItem prop="kind" label="标签类型">
+                  <Select v-model="obj.kind" clearable style="width:150px">
+                      <Option v-for="item in cKind" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                  </Select>
+                </FormItem>
+              </Col>
+              <Col span="6">
+                <FormItem prop="property" label="标签属性">
+                  <Select v-model="obj.property" clearable style="width:150px">
+                      <Option v-for="item in cProperty" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                  </Select>
+                </FormItem>
+              </Col>
+              <Col span="6">
+                &nbsp;
+              </Col>
+            </Row>
+          <Row>
+            <Col span="6">
+              <FormItem prop="status" label="标签状态">
                 <Input v-model="obj.status" style="width:150px" placeholder="请输入标签状态"></Input>
-            </FormItem>
-            <FormItem prop="sort" label="标题排序">
+              </FormItem>
+            </Col>
+            <Col span="6">
+              <FormItem prop="sort" label="标题排序">
                 <Input  v-model="obj.sort" style="width:150px" placeholder="请输入标题排序"></Input>
-            </FormItem>
-            <FormItem prop="esField" label="ES列名">
+              </FormItem>
+            </Col>
+            <Col span="6">
+              <FormItem prop="esField" label="ES列名">
                 <Input v-model="obj.esField" style="width:150px" placeholder="请输入ES列名"></Input>
-            </FormItem>
-            <FormItem>
-                <Button v-if="labelShow"  @click="openModel" type="warning">添加标签值</Button>
-                <Button @click="save('obj')" type="primary">保存</Button>
-            </FormItem>
+              </FormItem>
+            </Col>
+            <Col span="6">
+                &nbsp;
+              </Col>
+          </Row>
+          <FormItem>
+            <Button v-if="labelShow"  @click="openModel" type="warning">添加标签值</Button>
+            <Button @click="save('obj')" type="primary">保存</Button>
+          </FormItem>
         </Form>
 			</Card>
 		</Row>
@@ -46,7 +68,7 @@
             :closable="false"
             :mask-closable="false"
             footer-hide>
-            <Form ref="model" :model="model"  :rules="rulesInlne" :label-width="100">
+            <Form ref="model" :model="model"  :rules="rulesInline" :label-width="100">
                 <FormItem prop="name" label="标题名称">
                     <Input v-model="model.name" style="width:300px" placeholder="请输入标题名称"></Input>
                 </FormItem>
@@ -55,11 +77,11 @@
                     <Option v-for="item in cLogic" :value="item.value" :key="item.value">{{ item.label }}</Option>
                 </Select>
                 </FormItem>
-                <FormItem prop="esValue" label="标签值">
-                    <Input v-model="model.esValue" style="width:300px" placeholder="请输入标签值"></Input>
+                <FormItem prop="esValue" label="ES字段名">
+                    <Input v-model="model.esValue" style="width:300px" placeholder="请输入ES字段名"></Input>
                 </FormItem>
-                <FormItem v-if="model.logic==='1'" label="标签结束值">
-                    <Input v-model="model.esEnd" style="width:300px" placeholder="请输入标签结束值"></Input>
+                <FormItem v-if="model.logic==='1'" label="ES字段结束值">
+                    <Input v-model="model.esEnd" style="width:300px" placeholder="请输入ES字段结束值"></Input>
                 </FormItem>
                 <FormItem prop="sort" label="标题排序">
                     <Input v-model="model.sort" style="width:300px" placeholder="请输入标题排序"></Input>
@@ -75,6 +97,7 @@
 
 <script>
 import tagsApi from "@/api/tags";
+import fEsValue from "@/filters/fEsValue"
 const api = new tagsApi();
 export default {
   data() {
@@ -96,10 +119,10 @@ export default {
             id: 111,
             tagId: "1",
             name: "2",
-            logic: "3",
+            logic: "1",
             esValue: "3",
             sort: "4",
-            esEnd: "3"
+            esEnd: "5"
           }
         ] //基础标签的选项信息
       },
@@ -125,7 +148,8 @@ export default {
       rulesInline: {
         name: [{ required: true, message: "请输入标题名称", trigger: "blur" }],
         logic: [{ required: true, message: "请选择逻辑关系", trigger: "blur" }],
-        esValue: [{ required: true, message: "请输入标签值", trigger: "blur" }],
+        esValue: [{ required: true, message: "请输入ES字段名", trigger: "blur" }],
+        esEnd: [{ required: true, message: "请输入ES字段结束值", trigger: "blur" }],
         sort: [
           { required: true, message: "请选择标题排序", trigger: "blur" },
           {
@@ -139,20 +163,20 @@ export default {
       labelShow: false, // 是否显示标签值
       modalFlag: false, // 是否显示标签编辑
       model: {
-        tagId: "",
-        name: "",
-        logic: "",
-        esValue: "",
-        sort: "",
-        esEnd: ""
+        tagId: '',
+        name: '',
+        logic: '',
+        esValue: '',
+        sort: '',
+        esEnd: ''
       },
       modelTemp: {
-        tagId: "",
-        name: "",
-        logic: "",
-        esValue: "",
-        sort: "",
-        esEnd: ""
+        tagId: '',
+        name: '',
+        logic: '',
+        esValue: '',
+        sort: '',
+        esEnd: ''
       },
       tableColumns: [
         // 表头
@@ -170,7 +194,10 @@ export default {
         {
           title: "ES字段名",
           key: "esValue",
-          align: "left"
+          align: "left",
+          render: (h, params) => {
+            return h("span", fEsValue(params.row));
+          }
         },
         {
           title: "排序",
@@ -228,11 +255,28 @@ export default {
   },
   watch: {
     "obj.property": function() {
-      if (this.obj.property === "1") {
+      if (this.obj.property === "0") {
         this.labelShow = true;
       } else {
         this.labelShow = false;
       }
+    },
+    model:{
+      handler(newVal, oldVal) {
+        if(this.modalFlag){
+          if(this.model.logic==='0'){
+            this.rulesInline.esValue[0].required=true;
+            this.rulesInline.esEnd[0].required=false;
+          }else if(this.model.logic==='1'){
+            this.rulesInline.esValue[0].required = this.model.esEnd==null||this.model.esEnd==='';
+            this.rulesInline.esEnd[0].required = this.model.esValue==null||this.model.esValue==='';
+          }
+          this.$forceUpdate();
+        }
+      },
+      immediate: true,
+      deep : true
+
     }
   },
   beforeMount() {

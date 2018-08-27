@@ -65,7 +65,7 @@ export default {
     return {
       cType: this.$constants.cType,
       uTrade: null,
-      total: null,
+      total: 0,
       loading: true,
       modalFlag: false,
       params: {
@@ -212,8 +212,8 @@ export default {
         .handleUsersList(this.params)
         .then(res => {
           this.loading = false;
-          this.total = res.data.total;
-          this.resultValue = res.data.records;
+          this.total = res.data.total||0;
+          this.resultValue = res.data.records||[];
         })
         .catch(err => {
           this.loading = false;

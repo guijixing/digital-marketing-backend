@@ -41,7 +41,7 @@ export default {
       cKind:this.$constants.cKind,
       cStatus:this.$constants.cStatus,
       resultValue: [], // 列表数据
-      total: null, // 总页数
+      total: 0, // 总页数
       page: {
         current: 1, // 当前页数
         size: 10, // 每页显示条数
@@ -113,13 +113,10 @@ export default {
                 },
                 on: {
                   click: () => {
-                    this.$router.push({
-												name: 'basic-detail',
-												params: params.row.id
-											});
+                    this.editStatus(params.row);
                   }
                 }
-              }, '下架'),
+              }, params.row.status==='0'?'下架':'上架'),
               h('Button', {
                 props: {
                   type: 'error',
@@ -149,8 +146,8 @@ export default {
       this.loading = true
       api.getBaseList(this.page).then(res => {
         this.loading = false
-        this.resultValue = res.data.records
-        this.total = res.data.total
+        this.resultValue = res.data.records||[]
+        this.total = res.data.total||0;
       }).catch(error=>{
         this.loading = false
       })
@@ -172,8 +169,22 @@ export default {
           }
 					this.$Message.error('删除失败，请重试')
 				})
-      },
-
+    },
+      // 0上架 1下架
+    editStatus(row){
+      const params = {
+         status : row.status==='0'?'1':'0',
+         idList:[row.id]
+      }
+      api.editStatus(params).then((res)=>{
+        if(res.success){
+            this.$Message.success(params.status==='0'?'上架成功':'下架成功')
+            this.fetchList()
+            return;
+          }
+					this.$Message.error(params.status==='0'?'上架失败':'下架失败')
+      })
+    }
 
   }
 }

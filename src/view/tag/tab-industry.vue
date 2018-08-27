@@ -32,29 +32,32 @@
             :closable="false"
             :mask-closable="false"
             footer-hide>
-            <Form :model="model" :label-width="80">
-                <FormItem label="标题名称">
+            <Form ref="model" :model="model" :rules="rulesInline" :label-width="80">
+                <FormItem prop="name" label="标题名称">
                     <Input v-model="model.name" placeholder="请输入标题名称"></Input>
                 </FormItem>
-                <FormItem label="编码">
+                <FormItem prop="esCode" label="编码">
                     <Input v-model="model.esCode" placeholder="请输入编码"></Input>
                 </FormItem>
-                <FormItem label="排序">
+                <FormItem prop="sort" label="排序">
                     <Input v-model="model.sort" placeholder="请输入排序"></Input>
                 </FormItem>
                 <FormItem label="附件条件">
                     <can-edit-table :hover-show="hoverShow" :loading="modalLoading" @on-change="handleChangeLabel" @on-delete="handleLabelRemove" v-model="model.condition" :columns-list="labelTableColumns"></can-edit-table>
+                    <p v-show="conditionError" style="height:22px;" class="error-tip">附件条件四个参数为必填，请编辑后点击右侧保存按钮更新数据</p>
                     <Button @click="addCondition" class="margin-top-10"  type="primary">添加记录</Button>
                 </FormItem>
                 <div class="center width-100">
                     <Button @click="cancelModal" type="default">取消</Button>
-                    <Button @click="saveModal" type="primary">保存</Button>
+                    <Button @click="saveModal('model')" type="primary">保存</Button>
                 </div>
             </Form>
         </Modal>
     </div>
 </template>
 <script>
+import tagsApi from "@/api/tags";
+const api = new tagsApi();
 import canEditTable from "./canEditTable";
 export default {
   props: ["tabName"],
@@ -63,13 +66,14 @@ export default {
   },
   data() {
     return {
-      cStatus:this.$constants.cStatus,
+      cStatus: this.$constants.cStatus,
       resultValue: [],
       loading: true,
       modalFlag: false, // 是否显示标签编辑
       modalLoading: false, // 标签编辑附加条件列表
       hoverShow: true,
       total: null, // 总页数
+      conditionError:false,
       page: {
         current: 1, // 当前页数
         size: 10, // 每页显示条数
@@ -98,6 +102,25 @@ export default {
         condition: "",
         value: "",
         remark: ""
+      },
+      rulesInline: {
+        name: [{ required: true, message: "请输入标题名称", trigger: "blur" }],
+        esCode: [{ required: true, message: "请输入编码", trigger: "blur" }],
+        sort: [
+          { required: true, message: "请选择标题排序", trigger: "blur" },
+          {
+            pattern: this.$constants.sortReg,
+            message: "请输入数字",
+            trigger: "blur"
+          }
+        ],
+        sale: [
+          {
+            pattern: this.$constants.saleReg,
+            message: "请输入（0.01-1）",
+            trigger: "blur"
+          }
+        ]
       },
       tableColumns: [
         // 表头
@@ -164,11 +187,11 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.editTagStatus(params.row);
+                      this.editStatus(params.row);
                     }
                   }
                 },
-                "下架"
+                params.row.status==='0'?'下架':'上架'
               ),
               h(
                 "Button",
@@ -231,14 +254,14 @@ export default {
     };
   },
   beforeMount() {
-    // this.loading = false
     this.fetchList();
   },
   methods: {
     // 获取数据
     fetchList() {
       this.loading = true;
-      this.getInformationList(this.page)
+      api
+        .getTradeList(this.page)
         .then(res => {
           this.loading = false;
           this.resultValue = res.data.records;
@@ -256,7 +279,6 @@ export default {
     // 新增标签 弹框
     addModal() {
       this.modalFlag = true;
-
     },
     // 编辑标签 弹框
     editModal(row) {
@@ -264,35 +286,56 @@ export default {
       this.model = Object.assign(row);
     },
     // 上架 下架
-    editTagStatus(row) {
-
+    editStatus(row) {
+      const params = {
+         status : row.status==='0'?'1':'0',
+         idList:[row.id]
+      }
+      api.editStatus(params).then((res)=>{
+        if(res.success){
+            this.$Message.success(params.status==='0'?'上架成功':'下架成功')
+            this.fetchList()
+            return;
+          }
+					this.$Message.error(params.status==='0'?'上架失败':'下架失败')
+      })
     },
     cancelModal() {
       this.modalFlag = false;
       this.model = Object.assign(this.modelTemp);
     },
     // 保存标签
-    saveModal() {
+    saveModal(name) {
       let _self = this;
-      let axios = Promise.reject();
-      if (_self.model.id !== null) {
-        axios = api.editTradeTag(_self.model);
-      } else {
-        axios = api.addTradeTag(_self.model);
-      }
-      axios.then(res => {
-        if (!res.success) {
-          this.$Message.error("编辑失败，请重试");
-          return;
+      this.conditionError = _self.model.condition.filter(x=>{
+        return _self.$utils.isBlank(x.key)||
+            _self.$utils.isBlank(x.condition)||
+            _self.$utils.isBlank(x.value)||
+            _self.$utils.isBlank(x.remark);
+          }).length>0;
+      _self.$refs[name].validate(valid => {
+        if (valid&&!this.conditionError) {
+          let axios = null;
+          if (_self.model.id !== null) {
+            axios = api.editTradeTag(_self.model);
+          } else {
+            axios = api.addTradeTag(_self.model);
+          }
+          axios.then(res => {
+            if (!res.success) {
+              _self.$Message.error("编辑失败，请重试");
+              return;
+            }
+            _self.$Message.success("编辑成功");
+            _self.cancelModal();
+          });
         }
-        this.$Message.success("编辑成功");
-        this.cancelModal();
       });
     },
     // 删除标签
     handleRemove(id) {
-      const params  = {
-        idList:[id]
+      const params = {
+        idList: [id]
       };
       api.delTradeTag(params).then(res => {
         if (res.success) {
@@ -305,7 +348,7 @@ export default {
     },
     // 添加附件条件
     addCondition() {
-      this.model.condition.push(Object.assign(this.conditionObj));
+      this.model.condition.push(Object.assign({ editting:true },this.conditionObj));
     },
     // 修改 附件条件
     handleChangeLabel(row) {
@@ -313,7 +356,7 @@ export default {
     },
     // 删除 附件条件
     handleLabelRemove(row) {
-      this.model.condition.splice(row.index,1);
+      this.model.condition.splice(row.index, 1);
     }
   }
 };

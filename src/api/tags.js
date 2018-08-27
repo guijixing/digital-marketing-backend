@@ -19,6 +19,14 @@ class tagsApi {
       method: 'GET'
     })
   }
+  // 上下架
+  editStatus(params) {
+    return axios.request({
+      url: 'query/tag/base/status',
+      method: 'PUT',
+      data: params
+    })
+  }
 
   // 新增基础标签
   addBaseTag(params) {
@@ -72,6 +80,16 @@ class tagsApi {
       method: 'GET'
     })
   }
+
+  // 上下架
+  editStatus(params) {
+    return axios.request({
+      url: 'query/trade/tag/status',
+      method: 'PUT',
+      data: params
+    })
+  }
+
   // 新增行业标签
   addTradeTag(params) {
     return axios.request({

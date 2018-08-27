@@ -54,7 +54,7 @@
 		data() {
 			return {
 				resultValue: [], // 列表数据
-				total: null, // 总页数
+				total: 0, // 总页数
 				page: {
 					current: 1, // 当前页数
 					size: 10, // 每页显示条数
@@ -163,8 +163,8 @@
         this.loading = true
 				api.getDisturbedList(this.page).then(res => {
           this.loading = false
-          this.resultValue = res.data.records
-			  	this.total = res.data.total
+          this.resultValue = res.data.records||[]
+			  	this.total = res.data.total||0
 				})
 			},
 			// 分页

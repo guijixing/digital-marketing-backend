@@ -13,7 +13,7 @@ import 'iview/dist/styles/iview.css'
 import './index.less'
 import '@/assets/icons/iconfont.css'
 import constants from '@/api/constants'
-
+import utils from '@/api/utils'
 
 
 // import '@/mock'
@@ -36,7 +36,11 @@ Vue.prototype.$config = config
  */
 Vue.prototype.$constants = constants
 /**
- * 字段过滤器
+ * @description 常用方法
+ */
+Vue.prototype.$utils = utils
+/**
+ * 字典过滤器
  */
 Vue.filter('fDict', (value, arr) => {
   if (value != null && value !== '') {
